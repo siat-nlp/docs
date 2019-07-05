@@ -36,7 +36,7 @@
     
     
       
-        <title>DL Framework Programming - NLP and DL Docs</title>
+        <title>DL Framework Programming - NLP Docs</title>
       
     
     
@@ -113,7 +113,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href=".." title="NLP and DL Docs" class="md-header-nav__button md-logo">
+        <a href=".." title="NLP Docs" class="md-header-nav__button md-logo">
           
             <img src="../images/logo.svg" width="24" height="24">
           
@@ -126,7 +126,7 @@
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             <span class="md-header-nav__topic">
-              NLP and DL Docs
+              NLP Docs
             </span>
             <span class="md-header-nav__topic">
               DL Framework Programming
@@ -170,7 +170,7 @@
 
   
 
-<a href="https://github.com/siat-nlp/NLP-DL-Tricks/" title="Go to repository" class="md-source" data-md-source="github">
+<a href="https://github.com/siat-nlp/NLP-docs/" title="Go to repository" class="md-source" data-md-source="github">
   
     <div class="md-source__icon">
       <svg viewBox="0 0 24 24" width="24" height="24">
@@ -179,7 +179,7 @@
     </div>
   
   <div class="md-source__repository">
-    siat-nlp/NLP-DL-Tricks
+    siat-nlp/NLP-docs
   </div>
 </a>
           </div>
@@ -254,12 +254,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href=".." title="NLP and DL Docs" class="md-nav__button md-logo">
+    <a href=".." title="NLP Docs" class="md-nav__button md-logo">
       
         <img src="../images/logo.svg" width="48" height="48">
       
     </a>
-    NLP and DL Docs
+    NLP Docs
   </label>
   
     <div class="md-nav__source">
@@ -268,7 +268,7 @@
 
   
 
-<a href="https://github.com/siat-nlp/NLP-DL-Tricks/" title="Go to repository" class="md-source" data-md-source="github">
+<a href="https://github.com/siat-nlp/NLP-docs/" title="Go to repository" class="md-source" data-md-source="github">
   
     <div class="md-source__icon">
       <svg viewBox="0 0 24 24" width="24" height="24">
@@ -277,7 +277,7 @@
     </div>
   
   <div class="md-source__repository">
-    siat-nlp/NLP-DL-Tricks
+    siat-nlp/NLP-docs
   </div>
 </a>
     </div>
@@ -367,6 +367,13 @@
           <li class="md-nav__item">
   <a href="#model-save-restore" title="Model Save / Restore" class="md-nav__link">
     Model Save / Restore
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-graph-multi-session" title="Multi-graph / Multi-session" class="md-nav__link">
+    Multi-graph / Multi-session
   </a>
   
 </li>
@@ -649,6 +656,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#multi-graph-multi-session" title="Multi-graph / Multi-session" class="md-nav__link">
+    Multi-graph / Multi-session
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -717,7 +731,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/siat-nlp/NLP-DL-Tricks/tree/edit/nlpdocument/docs/dl_framework.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/siat-nlp/NLP-docs/tree/edit/nlpdocument/docs/dl_framework.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="deep-learning-framework-programming">Deep Learning Framework Programming<a class="headerlink" href="#deep-learning-framework-programming" title="Permanent link">&para;</a></h1>
@@ -734,6 +748,57 @@
 <p class="admonition-title">Ref</p>
 <p>More details are in this <a href="https://cv-tricks.com/tensorflow-tutorial/save-restore-tensorflow-models-quick-complete-tutorial/">tutorial</a>.</p>
 </div>
+<h3 id="multi-graph-multi-session">Multi-graph / Multi-session<a class="headerlink" href="#multi-graph-multi-session" title="Permanent link">&para;</a></h3>
+<p>Sometimes we need to build more than one tensorflow graph, e.g., we need to transfer the outputs of one model into another model for further training, then we usually build 2 different graphs, each represents a model. It should be noted that all the operations of each model must be specified under its corresponding graph. A simple example is illustrated as follows:
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre></div></td><td class="code"><div class="codehilite"><pre><span></span># define one graph named &#39;kbqa_graph&#39;
+kbqa_graph = tf.Graph()
+with kbqa_graph.as_default():
+    kbqa_model = KbqaModel(**kbqa_model_config)
+    kbqa_saver = tf.train.Saver()
+
+# define one session named &#39;kbqa_sess&#39; for loading pre-trained KBQA model
+kbqa_sess = tf.Session(config=config, graph=kbqa_graph)
+model_path = &#39;%s/model_best/best.model&#39; % args.model_dir
+kbqa_saver.restore(kbqa_sess, save_path=model_path)
+
+# define another graph named &#39;main_graph&#39; and the session &#39;main_sess&#39;
+main_graph = tf.Graph()
+with main_graph.as_default():
+    main_model = MainModel(**model_config)
+    main_server = tf.train.Server(max_to_keep=5)
+main_sess = tf.Session(config=config, graph=main_graph)
+
+...
+
+# note: the operations of &#39;main_model&#39; should be specified under the &#39;main_graph&#39; domain
+with main_graph.as_default():
+    main_sess.run(tf.global_variables_initializer())
+    main_model.set_vocabs(sess, word_vocab, kd_vocab)
+</pre></div>
+</td></tr></table></p>
 <h2 id="programming-in-pytorch">Programming in PyTorch<a class="headerlink" href="#programming-in-pytorch" title="Permanent link">&para;</a></h2>
 <h3 id="cuda-out-of-memory">CUDA out of memory<a class="headerlink" href="#cuda-out-of-memory" title="Permanent link">&para;</a></h3>
 <p>When <code>RuntimeError: CUDA out of memory</code> occurs, usually (1) check if exists too large tensors in computation graph; (2) downsize the batch size; (3) or use multiple GPUs to train. Note to split batch size when using <code>nn.DataParallel</code>. </p>
