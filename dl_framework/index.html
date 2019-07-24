@@ -773,30 +773,30 @@
 21
 22
 23
-24</pre></div></td><td class="code"><div class="codehilite"><pre><span></span># define one graph named &#39;kbqa_graph&#39;
-kbqa_graph = tf.Graph()
-with kbqa_graph.as_default():
-    kbqa_model = KbqaModel(**kbqa_model_config)
-    kbqa_saver = tf.train.Saver()
+24</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="c1"># define one graph named &#39;kbqa_graph&#39;</span>
+<span class="n">kbqa_graph</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">kbqa_graph</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
+    <span class="n">kbqa_model</span> <span class="o">=</span> <span class="n">KbqaModel</span><span class="p">(</span><span class="o">**</span><span class="n">kbqa_model_config</span><span class="p">)</span>
+    <span class="n">kbqa_saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">()</span>
 
-# define one session named &#39;kbqa_sess&#39; for loading pre-trained KBQA model
-kbqa_sess = tf.Session(config=config, graph=kbqa_graph)
-model_path = &#39;%s/model_best/best.model&#39; % args.model_dir
-kbqa_saver.restore(kbqa_sess, save_path=model_path)
+<span class="c1"># define one session named &#39;kbqa_sess&#39; for loading pre-trained KBQA model</span>
+<span class="n">kbqa_sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="n">kbqa_graph</span><span class="p">)</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/model_best/best.model&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">model_dir</span>
+<span class="n">kbqa_saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">kbqa_sess</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">)</span>
 
-# define another graph named &#39;main_graph&#39; and the session &#39;main_sess&#39;
-main_graph = tf.Graph()
-with main_graph.as_default():
-    main_model = MainModel(**model_config)
-    main_server = tf.train.Server(max_to_keep=5)
-main_sess = tf.Session(config=config, graph=main_graph)
+<span class="c1"># define another graph named &#39;main_graph&#39; and the session &#39;main_sess&#39;</span>
+<span class="n">main_graph</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">main_graph</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
+    <span class="n">main_model</span> <span class="o">=</span> <span class="n">MainModel</span><span class="p">(</span><span class="o">**</span><span class="n">model_config</span><span class="p">)</span>
+    <span class="n">main_server</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span><span class="n">max_to_keep</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">main_sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="n">main_graph</span><span class="p">)</span>
 
-...
+<span class="o">...</span>
 
-# note: the operations of &#39;main_model&#39; should be specified under the &#39;main_graph&#39; domain
-with main_graph.as_default():
-    main_sess.run(tf.global_variables_initializer())
-    main_model.set_vocabs(sess, word_vocab, kd_vocab)
+<span class="c1"># note: the operations of &#39;main_model&#39; should be specified under the &#39;main_graph&#39; domain</span>
+<span class="k">with</span> <span class="n">main_graph</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
+    <span class="n">main_sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+    <span class="n">main_model</span><span class="o">.</span><span class="n">set_vocabs</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">word_vocab</span><span class="p">,</span> <span class="n">kd_vocab</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></p>
 <h2 id="programming-in-pytorch">Programming in PyTorch<a class="headerlink" href="#programming-in-pytorch" title="Permanent link">&para;</a></h2>
@@ -838,26 +838,26 @@ For tensorflow serving, we save like,
 17
 18
 19
-20</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>### define input&amp;output signature
-signature = tf.saved_model.signature_def_utils.build_signature_def(
-inputs={
-   &#39;input_x1&#39;: tf.saved_model.utils.build_tensor_info(self.input_x1),
-   &#39;input_x2&#39;: tf.saved_model.utils.build_tensor_info(self.input_x2),
-   &#39;ent_x1&#39;: tf.saved_model.utils.build_tensor_info(self.ent_x1),
-   &#39;ent_x2&#39;: tf.saved_model.utils.build_tensor_info(self.ent_x2),
-   &#39;input_y&#39;: tf.saved_model.utils.build_tensor_info(self.input_y),
-   &#39;add_fea&#39;: tf.saved_model.utils.build_tensor_info(self.add_fea),
-   &#39;dropout_keep_prob&#39;: tf.saved_model.utils.build_tensor_info(self.dropout_keep_prob)
-},
-outputs={
-   &#39;output&#39;: tf.saved_model.utils.build_tensor_info(self.soft_prob)
-},
-method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME
-)
-### saving 
-builder = tf.saved_model.builder.SavedModelBuilder(graph_save_dir)
-builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.SERVING], {tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: signature})
-builder.save()
+20</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="c1">### define input&amp;output signature</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">signature_def_utils</span><span class="o">.</span><span class="n">build_signature_def</span><span class="p">(</span>
+<span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+   <span class="s1">&#39;input_x1&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_x1</span><span class="p">),</span>
+   <span class="s1">&#39;input_x2&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_x2</span><span class="p">),</span>
+   <span class="s1">&#39;ent_x1&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ent_x1</span><span class="p">),</span>
+   <span class="s1">&#39;ent_x2&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ent_x2</span><span class="p">),</span>
+   <span class="s1">&#39;input_y&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_y</span><span class="p">),</span>
+   <span class="s1">&#39;add_fea&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_fea</span><span class="p">),</span>
+   <span class="s1">&#39;dropout_keep_prob&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout_keep_prob</span><span class="p">)</span>
+<span class="p">},</span>
+<span class="n">outputs</span><span class="o">=</span><span class="p">{</span>
+   <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">build_tensor_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soft_prob</span><span class="p">)</span>
+<span class="p">},</span>
+<span class="n">method_name</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">signature_constants</span><span class="o">.</span><span class="n">PREDICT_METHOD_NAME</span>
+<span class="p">)</span>
+<span class="c1">### saving </span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">SavedModelBuilder</span><span class="p">(</span><span class="n">graph_save_dir</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_meta_graph_and_variables</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">tag_constants</span><span class="o">.</span><span class="n">SERVING</span><span class="p">],</span> <span class="p">{</span><span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">signature_constants</span><span class="o">.</span><span class="n">DEFAULT_SERVING_SIGNATURE_DEF_KEY</span><span class="p">:</span> <span class="n">signature</span><span class="p">})</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </td></tr></table>
 Define your own inputs and outputs according to the task.</p>
@@ -917,38 +917,38 @@ $ sudo docker cp /data/huangweiyi/qaModel/code/kaaqa/runs/model 6d7d70e27ecc:/on
 29
 30
 31
-32</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>hostport = &#39;172.17.0.2:8500&#39;
-channel = grpc.insecure_channel(hostport)
-stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
+32</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="n">hostport</span> <span class="o">=</span> <span class="s1">&#39;172.17.0.2:8500&#39;</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">hostport</span><span class="p">)</span>
+<span class="n">stub</span> <span class="o">=</span> <span class="n">prediction_service_pb2_grpc</span><span class="o">.</span><span class="n">PredictionServiceStub</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
 
-request = predict_pb2.PredictRequest()
-request.model_spec.name = &#39;qa&#39;
+<span class="n">request</span> <span class="o">=</span> <span class="n">predict_pb2</span><span class="o">.</span><span class="n">PredictRequest</span><span class="p">()</span>
+<span class="n">request</span><span class="o">.</span><span class="n">model_spec</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;qa&#39;</span>
 
-inpH = InputHelper()
-x1_test, x2_test, ent_x1_test, ent_x2_test, y_test, x1_temp, x2_temp, add_fea_test = inpH.getTestSample(question, candidates)
-batches = inpH.batch_iter(list(zip(x1_test, x2_test, ent_x1_test, ent_x2_test, y_test, add_fea_test)), 10000, 1, shuffle=False)
-for db in batches:
-   x1_dev_b, x2_dev_b, ent_x1_dev_b, ent_x2_dev_b, y_dev_b, add_fea_dev_b = zip(*db)
-   for idx in range(len(x1_dev_b)):
-       feature_dict = {
-           &quot;input_x1&quot;: x1_dev_b,
-           &quot;input_x2&quot;: x2_dev_b,
-           &quot;ent_x1&quot;: ent_x1_dev_b,
-           &quot;ent_x2&quot;: ent_x2_dev_b,
-           &quot;input_y&quot;: y_dev_b,
-           &quot;add_fea&quot;: add_fea_dev_b,
-           &quot;dropout_keep_prob&quot;: 1,
-       }
-       for key in [&#39;input_x1&#39;, &#39;input_x2&#39;, &#39;ent_x1&#39;, &#39;ent_x2&#39;]:
-           value = feature_dict.get(key)[idx].astype(np.int32)
-           request.inputs[key].CopyFrom(tf.contrib.util.make_tensor_proto(value, shape=[1, value.size]))
-       request.inputs[&#39;dropout_keep_prob&#39;].CopyFrom(tf.contrib.util.make_tensor_proto(1.0, shape=[1]))
-       request.inputs[&#39;input_y&#39;].CopyFrom(tf.contrib.util.make_tensor_proto(1, shape=[1], dtype=np.int64))
-       value = add_fea_dev_b[0].astype(np.float32)
-       request.inputs[&#39;add_fea&#39;].CopyFrom(tf.contrib.util.make_tensor_proto(value, shape=[1, value.size]))
+<span class="n">inpH</span> <span class="o">=</span> <span class="n">InputHelper</span><span class="p">()</span>
+<span class="n">x1_test</span><span class="p">,</span> <span class="n">x2_test</span><span class="p">,</span> <span class="n">ent_x1_test</span><span class="p">,</span> <span class="n">ent_x2_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">x1_temp</span><span class="p">,</span> <span class="n">x2_temp</span><span class="p">,</span> <span class="n">add_fea_test</span> <span class="o">=</span> <span class="n">inpH</span><span class="o">.</span><span class="n">getTestSample</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">candidates</span><span class="p">)</span>
+<span class="n">batches</span> <span class="o">=</span> <span class="n">inpH</span><span class="o">.</span><span class="n">batch_iter</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x1_test</span><span class="p">,</span> <span class="n">x2_test</span><span class="p">,</span> <span class="n">ent_x1_test</span><span class="p">,</span> <span class="n">ent_x2_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">add_fea_test</span><span class="p">)),</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+   <span class="n">x1_dev_b</span><span class="p">,</span> <span class="n">x2_dev_b</span><span class="p">,</span> <span class="n">ent_x1_dev_b</span><span class="p">,</span> <span class="n">ent_x2_dev_b</span><span class="p">,</span> <span class="n">y_dev_b</span><span class="p">,</span> <span class="n">add_fea_dev_b</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">db</span><span class="p">)</span>
+   <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x1_dev_b</span><span class="p">)):</span>
+       <span class="n">feature_dict</span> <span class="o">=</span> <span class="p">{</span>
+           <span class="s2">&quot;input_x1&quot;</span><span class="p">:</span> <span class="n">x1_dev_b</span><span class="p">,</span>
+           <span class="s2">&quot;input_x2&quot;</span><span class="p">:</span> <span class="n">x2_dev_b</span><span class="p">,</span>
+           <span class="s2">&quot;ent_x1&quot;</span><span class="p">:</span> <span class="n">ent_x1_dev_b</span><span class="p">,</span>
+           <span class="s2">&quot;ent_x2&quot;</span><span class="p">:</span> <span class="n">ent_x2_dev_b</span><span class="p">,</span>
+           <span class="s2">&quot;input_y&quot;</span><span class="p">:</span> <span class="n">y_dev_b</span><span class="p">,</span>
+           <span class="s2">&quot;add_fea&quot;</span><span class="p">:</span> <span class="n">add_fea_dev_b</span><span class="p">,</span>
+           <span class="s2">&quot;dropout_keep_prob&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+       <span class="p">}</span>
+       <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;input_x1&#39;</span><span class="p">,</span> <span class="s1">&#39;input_x2&#39;</span><span class="p">,</span> <span class="s1">&#39;ent_x1&#39;</span><span class="p">,</span> <span class="s1">&#39;ent_x2&#39;</span><span class="p">]:</span>
+           <span class="n">value</span> <span class="o">=</span> <span class="n">feature_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+           <span class="n">request</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">CopyFrom</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">make_tensor_proto</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">size</span><span class="p">]))</span>
+       <span class="n">request</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;dropout_keep_prob&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">CopyFrom</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">make_tensor_proto</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+       <span class="n">request</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;input_y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">CopyFrom</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">make_tensor_proto</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
+       <span class="n">value</span> <span class="o">=</span> <span class="n">add_fea_dev_b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+       <span class="n">request</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;add_fea&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">CopyFrom</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">make_tensor_proto</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">size</span><span class="p">]))</span>
 
-       result_future = stub.Predict.future(request, 3.0)
-       score = np.array(result_future.result().outputs[&#39;output&#39;].float_val)[1]
+       <span class="n">result_future</span> <span class="o">=</span> <span class="n">stub</span><span class="o">.</span><span class="n">Predict</span><span class="o">.</span><span class="n">future</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+       <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result_future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">float_val</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </td></tr></table>
 

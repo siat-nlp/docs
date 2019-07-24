@@ -993,109 +993,109 @@
 96
 97
 98
-99</pre></div></td><td class="code"><div class="codehilite"><pre><span></span># -*- coding: utf-8 -*-
-import numpy as np
-import pickle
-import time
-from queue import Queue
-from threading import Thread
-from data_loader import DataLoader
+99</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
+<span class="kn">from</span> <span class="nn">data_loader</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 
-# max number of chunk files being loaded into memory
-CHUNK_NUM = 20
+<span class="c1"># max number of chunk files being loaded into memory</span>
+<span class="n">CHUNK_NUM</span> <span class="o">=</span> <span class="mi">20</span>
 
 
-class DataBatcher(object):
-    &quot;&quot;&quot;
-        Data batcher with queue for loading big dataset
-    &quot;&quot;&quot;
+<span class="k">class</span> <span class="nc">DataBatcher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Data batcher with queue for loading big dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    def __init__(self, data_dir, file_list, batch_size, num_epoch, shuffle=False):
-        self.data_dir = data_dir
-        self.file_list = file_list
-        self.batch_size = batch_size
-        self.num_epoch = num_epoch
-        self.shuffle = shuffle
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_epoch</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_list</span> <span class="o">=</span> <span class="n">file_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_epoch</span> <span class="o">=</span> <span class="n">num_epoch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
 
-        self.cur_epoch = 0
-        self.loader_queue = Queue(maxsize=CHUNK_NUM)
-        self.loader_queue_size = 0
-        self.batch_iter = self.batch_generator()
-        self.input_gen = self.loader_generator()
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_epoch</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="n">CHUNK_NUM</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue_size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_generator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_generator</span><span class="p">()</span>
 
-        # Start the threads that load the queues
-        self.loader_q_thread = Thread(target=self.fill_loader_queue)
-        self.loader_q_thread.setDaemon(True)
-        self.loader_q_thread.start()
+        <span class="c1"># Start the threads that load the queues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loader_q_thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_loader_queue</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loader_q_thread</span><span class="o">.</span><span class="n">setDaemon</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loader_q_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-        # Start a thread that watches the other threads and restarts them if they&#39;re dead
-        self.watch_thread = Thread(target=self.monitor_threads)
-        self.watch_thread.setDaemon(True)
-        self.watch_thread.start()
+        <span class="c1"># Start a thread that watches the other threads and restarts them if they&#39;re dead</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">watch_thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_threads</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">watch_thread</span><span class="o">.</span><span class="n">setDaemon</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">watch_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-    def get_batch(self):
-        try:
-            batch_data, local_size = next(self.batch_iter)
-        except StopIteration:
-            batch_data = None
-            local_size = 0
-        return batch_data, local_size
+    <span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">batch_data</span><span class="p">,</span> <span class="n">local_size</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_iter</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="n">batch_data</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">local_size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">batch_data</span><span class="p">,</span> <span class="n">local_size</span>
 
-    def get_epoch(self):
-        return self.cur_epoch
+    <span class="k">def</span> <span class="nf">get_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_epoch</span>
 
-    def full(self):
-        if self.loader_queue_size == CHUNK_NUM:
-            return True
-        else:
-            return False
+    <span class="k">def</span> <span class="nf">full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue_size</span> <span class="o">==</span> <span class="n">CHUNK_NUM</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
 
-    def batch_generator(self):
-        while self.loader_queue_size &gt; 0:
-            data_loader = self.loader_queue.get()
-            n_batch = data_loader.n_batch
-            self.loader_queue_size -= 1
-            for batch_idx in range(n_batch):
-                batch_data, local_size = data_loader.get_batch(batch_idx=batch_idx)
-                yield batch_data, local_size
+    <span class="k">def</span> <span class="nf">batch_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data_loader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">n_batch</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">n_batch</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue_size</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">batch_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_batch</span><span class="p">):</span>
+                <span class="n">batch_data</span><span class="p">,</span> <span class="n">local_size</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">batch_idx</span><span class="o">=</span><span class="n">batch_idx</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">batch_data</span><span class="p">,</span> <span class="n">local_size</span>
 
-    def loader_generator(self):
-        for epoch in range(self.num_epoch):
-            self.cur_epoch = epoch
-            if self.shuffle:
-                np.random.shuffle(self.file_list)
-            for idx, f in enumerate(self.file_list):
-                # here, the file reading process may vary from your task
-                reader = open(&quot;%s/%s&quot; % (self.data_dir, f), &#39;br&#39;)
-                chunk_data = pickle.load(reader)
-                # here, DataLoader is a self-defined class for data batching, similar to DataLoader in PyTorch
-                data_loader = DataLoader(data=chunk_data, batch_size=self.batch_size)
-                yield data_loader
+    <span class="k">def</span> <span class="nf">loader_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_epoch</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_epoch</span> <span class="o">=</span> <span class="n">epoch</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_list</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_list</span><span class="p">):</span>
+                <span class="c1"># here, the file reading process may vary from your task</span>
+                <span class="n">reader</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="s1">&#39;br&#39;</span><span class="p">)</span>
+                <span class="n">chunk_data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+                <span class="c1"># here, DataLoader is a self-defined class for data batching, similar to DataLoader in PyTorch</span>
+                <span class="n">data_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">chunk_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">data_loader</span>
 
-    def fill_loader_queue(self):
-        while True:
-            if self.loader_queue_size &lt;= CHUNK_NUM:
-                try:
-                    data_loader = next(self.input_gen)
-                    self.loader_queue.put(data_loader)
-                    self.loader_queue_size += 1
-                except StopIteration:
-                    break
+    <span class="k">def</span> <span class="nf">fill_loader_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue_size</span> <span class="o">&lt;=</span> <span class="n">CHUNK_NUM</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data_loader</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_gen</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">loader_queue_size</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                    <span class="k">break</span>
 
-    def monitor_threads(self):
-        &quot;&quot;&quot;Watch loader queue thread and restart if dead.&quot;&quot;&quot;
-        while True:
-            time.sleep(60)
-            if not self.loader_q_thread.is_alive():  # if the thread is dead
-                print(&#39;Found loader queue thread dead. Restarting.&#39;)
-                new_t = Thread(target=self.fill_loader_queue)
-                self.loader_q_thread = new_t
-                new_t.daemon = True
-                new_t.start()
+    <span class="k">def</span> <span class="nf">monitor_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Watch loader queue thread and restart if dead.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_q_thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>  <span class="c1"># if the thread is dead</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Found loader queue thread dead. Restarting.&#39;</span><span class="p">)</span>
+                <span class="n">new_t</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_loader_queue</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loader_q_thread</span> <span class="o">=</span> <span class="n">new_t</span>
+                <span class="n">new_t</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">new_t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></p>
 <h2 id="network-architecture">Network architecture<a class="headerlink" href="#network-architecture" title="Permanent link">&para;</a></h2>
-<h3 id="seq2seq"><strong>Seq2Seq</strong><a class="headerlink" href="#seq2seq" title="Permanent link">&para;</a></h3>
+<h3 id="seq2seq">Seq2Seq<a class="headerlink" href="#seq2seq" title="Permanent link">&para;</a></h3>
 <p>Some tricks to train RNN and seq2seq models:</p>
 <ul>
 <li>Embedding size: 1024 or 512. Lower dimensionality like 256 can also lead to good performances. Higher does not necessarily lead to better performances.</li>
@@ -1118,8 +1118,7 @@ class DataBatcher(object):
 <p class="admonition-title">Ref</p>
 <p><a href="https://arxiv.org/abs/1409.3215">Sequence to Sequence Learning with Neural Networks</a>, Ilya Sutskever et al.</p>
 </div>
-<p><br /></p>
-<h3 id="char-rnn"><strong>Char-RNN</strong><a class="headerlink" href="#char-rnn" title="Permanent link">&para;</a></h3>
+<h3 id="char-rnn">Char-RNN<a class="headerlink" href="#char-rnn" title="Permanent link">&para;</a></h3>
 <p>By training in an unsupervised way a network to predict the next character of a text (char-RNN), the network will learn a representation which can then be used for a supervised task (here sentiment analysis).</p>
 <div class="admonition info">
 <p class="admonition-title">Ref</p>
